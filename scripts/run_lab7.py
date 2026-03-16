@@ -1,13 +1,12 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 import numpy as np
 
 from keras.datasets import mnist
 from keras.models import Sequential
-from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.layers import Dense, Input, Dropout
 
 from src.draw import ImagePlotter
 
@@ -24,6 +23,7 @@ METRICS = [
 INPUT_UNITS = 28 * 28
 HIDDEN_ACTIVATION = 'relu'
 HIDDEN_UNITS = 2 * INPUT_UNITS + 1
+HIDDEN_DROPOUT_RATE = 0.2
 OUTPUT_ACTIVATION = 'softmax'
 OUTPUT_UNITS = 10
 
@@ -50,10 +50,11 @@ if __name__ == '__main__':
     # Создание модели с одним скрытым слоем
     nn_model = Sequential([
         # Входной слой
-        Input(shape=(INPUT_UNITS,), name='input_layer'),
+        Input(shape=(INPUT_UNITS,), name='input'),
 
         # Скрытый слой
         Dense(HIDDEN_UNITS, activation=HIDDEN_ACTIVATION, name='hidden'),
+        Dropout(HIDDEN_DROPOUT_RATE, name='hidden_dropout'),
 
         # Выходной слой
         Dense(OUTPUT_UNITS, activation=OUTPUT_ACTIVATION, name='output')
