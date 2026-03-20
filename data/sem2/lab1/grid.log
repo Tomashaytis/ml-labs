@@ -1,0 +1,81 @@
+======================================================================
+GRID SEARCH
+======================================================================
+
+[1/25] Test: units=750, batch_size=2
+  Train acc: 0.8930, Val acc: 0.8972, Time: 1433.16s
+
+[2/25] Test: units=750, batch_size=4
+  Train acc: 0.9198, Val acc: 0.9212, Time: 765.46s
+
+[3/25] Test: units=750, batch_size=8
+  Train acc: 0.9400, Val acc: 0.9403, Time: 372.98s
+
+[4/25] Test: units=750, batch_size=16
+  Train acc: 0.9526, Val acc: 0.9453, Time: 195.11s
+
+[5/25] Test: units=750, batch_size=32
+  Train acc: 0.9617, Val acc: 0.9527, Time: 106.46s
+
+[6/25] Test: units=1000, batch_size=2
+  Train acc: 0.8932, Val acc: 0.9056, Time: 1823.30s
+
+[7/25] Test: units=1000, batch_size=4
+  Train acc: 0.9215, Val acc: 0.9137, Time: 940.46s
+
+[8/25] Test: units=1000, batch_size=8
+  Train acc: 0.9390, Val acc: 0.9291, Time: 499.19s
+
+[9/25] Test: units=1000, batch_size=16
+  Train acc: 0.9540, Val acc: 0.9474, Time: 252.59s
+
+[10/25] Test: units=1000, batch_size=32
+  Train acc: 0.9654, Val acc: 0.9545, Time: 144.47s
+
+[11/25] Test: units=1250, batch_size=2
+  Train acc: 0.8982, Val acc: 0.9050, Time: 2358.72s
+
+[12/25] Test: units=1250, batch_size=4
+  Train acc: 0.9258, Val acc: 0.9218, Time: 1201.27s
+
+[13/25] Test: units=1250, batch_size=8
+  Train acc: 0.9402, Val acc: 0.9334, Time: 608.74s
+
+[14/25] Test: units=1250, batch_size=16
+  Train acc: 0.9552, Val acc: 0.9428, Time: 306.86s
+
+[15/25] Test: units=1250, batch_size=32
+  Train acc: 0.9651, Val acc: 0.9545, Time: 177.00s
+
+[16/25] Test: units=1500, batch_size=2
+  Train acc: 0.8939, Val acc: 0.8855, Time: 2837.16s
+
+[17/25] Test: units=1500, batch_size=4
+  Train acc: 0.9240, Val acc: 0.9270, Time: 1418.18s
+
+[18/25] Test: units=1500, batch_size=8
+  Train acc: 0.9432, Val acc: 0.9380, Time: 731.98s
+
+[19/25] Test: units=1500, batch_size=16
+  Train acc: 0.9568, Val acc: 0.9448, Time: 356.96s
+
+[20/25] Test: units=1500, batch_size=32
+  Train acc: 0.9669, Val acc: 0.9570, Time: 207.12s
+
+[21/25] Test: units=1750, batch_size=2
+  Train acc: 0.8958, Val acc: 0.8914, Time: 3297.22s
+
+[22/25] Test: units=1750, batch_size=4
+  Train acc: 0.9260, Val acc: 0.9212, Time: 1658.25s
+
+[23/25] Test: units=1750, batch_size=8
+  Train acc: 0.9424, Val acc: 0.9380, Time: 842.95s
+
+[24/25] Test: units=1750, batch_size=16
+  Train acc: 0.9556, Val acc: 0.9413, Time: 419.86s
+
+[25/25] Test: units=1750, batch_size=32
+  Train acc: 0.9688, Val acc: 0.9576, Time: 262.54s
+
+Best: units=1750, batch_size=32
+  Train acc: 0.9688, Val acc: 0.9576, Time: 262.54s

@@ -1,7 +1,7 @@
-from src.classifiers.neighbour.kde_classifier import KDEClassifier
-from src.classifiers.neighbour.knn_classifier import KNNClassifier
+from .kde import KDE
+from .knn import KNN
 
 __all__ = [
-    'KDEClassifier',
-    'KNNClassifier',
+    'KDE',
+    'KNN',
 ]

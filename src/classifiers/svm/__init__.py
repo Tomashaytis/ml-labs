@@ -1,7 +1,7 @@
-from src.classifiers.svm.svm_classifier import SVMClassifier
-from src.classifiers.svm.kernel_svm_classifier import KernelSVMClassifier
+from src.classifiers.svm.svm import SVM
+from src.classifiers.svm.kernel_svm import KernelSVM
 
 __all__ = [
-    'SVMClassifier',
-    'KernelSVMClassifier',
+    'SVM',
+    'KernelSVM',
 ]

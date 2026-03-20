@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 
 from typing import Tuple, List
 from random import shuffle
+
 from src.core import Sample, NormalSampleParams
+from src.utils.sem1.lab1 import normal2, mahalanobis_distance, bhattacharyya_distance
 from .constants import SIZE, MEAN0, MEAN1, MEAN2, MEAN3, MEAN4, COV0, COV1, COV2, COV3
-from src.utils import normal2, mahalanobis_distance, bhattacharyya_distance
 
 
 def generate_2_samples(size: int = SIZE, should_visualize: bool = False, should_print: bool = False) -> Tuple[Sample, Sample]:

@@ -1,8 +1,10 @@
 import numpy as np
 
 from typing import Union, Dict, Any
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+
 from src.core import SampleParams, NormalSampleParams
+
 
 @dataclass
 class Sample:

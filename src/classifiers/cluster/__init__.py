@@ -1,11 +1,11 @@
-from .leader_clusterizer import LeaderClusterizer
-from .maximin_clusterizer import MaximinClusterizer
-from .kmedoids_clusterizer import KMedoidsClusterizer
-from .kmeans_clusterizer import KMeansClusterizer
+from .leader import Leader
+from .maximin import Maximin
+from .kmedoids import KMedoids
+from .kmeans import KMeans
 
 __all__ = [
-    'LeaderClusterizer',
-    'MaximinClusterizer',
-    'KMedoidsClusterizer',
-    'KMeansClusterizer',
+    'Leader',
+    'Maximin',
+    'KMedoids',
+    'KMeans',
 ]

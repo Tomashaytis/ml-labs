@@ -1,9 +1,9 @@
-from src.classifiers.bayesian.bayesian_classifier import BayesianClassifier
-from src.classifiers.bayesian.minimax_classifier import MinimaxClassifier
-from src.classifiers.bayesian.neyman_pearson_classifier import NeymanPearsonClassifier
+from .bayesian import Bayesian
+from .minimax import Minimax
+from .neyman_pearson import NeymanPearson
 
 __all__ = [
-    'BayesianClassifier',
-    'MinimaxClassifier',
-    'NeymanPearsonClassifier',
+    'Bayesian',
+    'Minimax',
+    'NeymanPearson',
 ]

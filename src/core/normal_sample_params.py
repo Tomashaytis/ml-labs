@@ -2,7 +2,9 @@ import numpy as np
 
 from typing import Dict, Any
 from dataclasses import dataclass
+
 from src.core import SampleParams
+
 
 @dataclass
 class NormalSampleParams(SampleParams):
