@@ -139,8 +139,6 @@ if __name__ == '__main__':
         print(f'Test {METRIC} (CM): {test_accuracy_cm:.3f}')
 
     elif OPTION == 'grid':
-        print()
-
         # Перебор параметров по сетке
         params = {
             'optimizer': OPTIMIZER,
