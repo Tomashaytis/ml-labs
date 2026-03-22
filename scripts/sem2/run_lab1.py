@@ -138,6 +138,24 @@ if __name__ == '__main__':
         test_accuracy_cm = correct_predictions / total_predictions
         print(f'Test {METRIC} (CM): {test_accuracy_cm:.3f}')
 
+        # Пример неверно проклассифицированных объектов по каждому классу
+        incorrect_mask = (y_pred != y_test)
+        incorrect_indices = np.where(incorrect_mask)[0]
+
+        examples_by_class = {}
+
+        for digit in range(10):
+            digit_predicted = incorrect_indices[y_pred[incorrect_indices] == digit]
+
+            if len(digit_predicted) > 0:
+                idx = digit_predicted[0]
+                examples_by_class[digit] = idx
+
+        incorrect_images = np.array([x_test[idx].reshape(28, 28) for idx in examples_by_class.values()])
+        incorrect_labels = np.array([y_pred[idx] for idx in examples_by_class.values()])
+
+        plotter.imshow_mnist(incorrect_images, incorrect_labels, title="False predictions per class")
+
     elif OPTION == 'grid':
         print()
 

@@ -221,8 +221,8 @@ class ImagePlotter:
         plt.tight_layout()
         plt.show()
 
-    def imshow_mnist(self, sample: np.ndarray, true_labels: np.array):
-        """Отображет все цифры из датасета mnist"""
+    def imshow_mnist(self, sample: np.ndarray, true_labels: np.array, title: str = "Digits of mnist dataset"):
+        """Отображет цифры из датасета mnist"""
         if len(np.unique(true_labels)) < 10:
             raise ValueError('Not all digits are in the sample')
 
@@ -234,7 +234,7 @@ class ImagePlotter:
                 digits[digit] = sample[index]
 
         fig, axes = plt.subplots(4, 3, figsize=(4, 5))
-        fig.suptitle("Цифры датасета mnist")
+        fig.suptitle(title)
 
         for i in range(4):
             for j in range(3):
