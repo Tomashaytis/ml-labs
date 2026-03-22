@@ -157,8 +157,6 @@ if __name__ == '__main__':
         plotter.imshow_mnist(incorrect_images, incorrect_labels, title="False predictions per class")
 
     elif OPTION == 'grid':
-        print()
-
         # Перебор параметров по сетке
         params = {
             'optimizer': OPTIMIZER,
