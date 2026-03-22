@@ -1,6 +1,11 @@
 import os
+import sys
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 import numpy as np
 import tensorflow as tf
@@ -31,9 +36,9 @@ OUTPUT_UNITS = 10
 GRID_HIDDEN_NEURONS = [750, 1000, 1250, 1500, 1750]
 GRID_BATCH_SIZES = [2, 4, 8, 16, 32]
 
-OPTION = 'eval'
+OPTION = 'eval'  # 'train', 'eval', 'grid'
 MODEL_PATH = os.path.join('models', 'nn_model.keras')
-SHOW_DATASET_STATS = False
+SHOW_DATASET_STATS = True
 
 
 if __name__ == '__main__':
@@ -57,6 +62,8 @@ if __name__ == '__main__':
             print(f"Digit {digit}: {count} ({count / len(y_train) * 100:.2f}%)")
 
     # Разворачивание в строку
+    x_train = x_train.astype("float32") / 255.0
+    x_test = x_test.astype("float32") / 255.0
     x_train = x_train.reshape(-1, 784)
     x_test = x_test.reshape(-1, 784)
 
