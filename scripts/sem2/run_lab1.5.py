@@ -22,7 +22,6 @@ LOSS = 'sparse_categorical_crossentropy'
 METRIC = 'accuracy'
 INPUT_UNITS = 28 * 28
 OUTPUT_UNITS = 10
-DROPOUT_RATE = 0.2
 
 # Формулы для отчета (включая bias, как считает Keras count_params)
 def params_one_hidden(h1: int) -> int:
@@ -91,6 +90,9 @@ def train_config(name: str, hidden_layers: list[int], batch_size: int, dropout_r
 
 
 def plot_metric(results: list[dict], metric_name: str, title: str):
+    if not results:
+        return
+
     plt.figure(figsize=(10, 6))
     for result in results:
         plt.plot(result['history'][metric_name], label=result['name'])
@@ -128,40 +130,34 @@ def main():
 
     configs = [
         {
-            'name': '1 hidden, no dropout, bs=32',
+            'name': '1 hidden, dropout=0.2, bs=8',
             'hidden_layers': [100],
-            'batch_size': 32,
-            'dropout_rate': 0.0,
+            'batch_size': 8,
+            'dropout_rate': 0.2,
+        },
+        {
+            'name': '1 hidden, dropout=0.2, bs=16',
+            'hidden_layers': [100],
+            'batch_size': 16,
+            'dropout_rate': 0.2,
         },
         {
             'name': '1 hidden, dropout=0.2, bs=32',
             'hidden_layers': [100],
             'batch_size': 32,
-            'dropout_rate': DROPOUT_RATE,
+            'dropout_rate': 0.2,
+        },
+        {
+            'name': '1 hidden, dropout=0.2, bs=64',
+            'hidden_layers': [100],
+            'batch_size': 64,
+            'dropout_rate': 0.2,
         },
         {
             'name': '1 hidden, dropout=0.2, bs=128',
             'hidden_layers': [100],
             'batch_size': 128,
-            'dropout_rate': DROPOUT_RATE,
-        },
-        {
-            'name': '2 hidden, no dropout, bs=32',
-            'hidden_layers': [96, 32],
-            'batch_size': 32,
-            'dropout_rate': 0.0,
-        },
-        {
-            'name': '2 hidden, dropout=0.2, bs=32',
-            'hidden_layers': [96, 32],
-            'batch_size': 32,
-            'dropout_rate': DROPOUT_RATE,
-        },
-        {
-            'name': '2 hidden, dropout=0.2, bs=128',
-            'hidden_layers': [96, 32],
-            'batch_size': 128,
-            'dropout_rate': DROPOUT_RATE,
+            'dropout_rate': 0.2,
         },
     ]
 
