@@ -14,9 +14,11 @@ from keras.datasets import mnist
 from keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense, Input, Dropout
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import GridSearchCV
+from scikeras.wrappers import KerasClassifier
 
 from src.draw import ImagePlotter
-from src.utils.sem2.lab1 import grid_search_nn
+from src.utils.sem2.lab1 import grid_search_nn, create_nn_model
 
 EPOCHS = 10
 BATCH_SIZE = 32
@@ -34,10 +36,10 @@ HIDDEN_DROPOUT_RATE = 0.2
 OUTPUT_ACTIVATION = 'softmax'
 OUTPUT_UNITS = 10
 
-GRID_HIDDEN_NEURONS = [750, 1000, 1250, 1500, 1750]
-GRID_BATCH_SIZES = [2, 4, 8, 16, 32]
+GRID_HIDDEN_NEURONS = [1500, 1750]
+GRID_BATCH_SIZES = [16, 32]
 
-OPTION = 'train'  # 'train', 'eval', 'grid'
+OPTION = 'grid-cv'  # 'train', 'eval', 'grid', 'grid-cv'
 MODEL_PATH = os.path.join('models', 'nn_model.keras')
 SHOW_DATASET_STATS = True
 
@@ -194,3 +196,43 @@ if __name__ == '__main__':
         print()
         print(f'Best {METRIC}: {best_metric:.3f}')
         print(f'Best params: {best_params}')
+
+    elif OPTION == 'grid-cv':
+        # Keras обёртка для модели
+        nn_model = KerasClassifier(
+            model=create_nn_model,
+            epochs=EPOCHS,
+            batch_size=BATCH_SIZE,
+            validation_split=VALIDATION_SPLIT,
+            verbose=0
+        )
+
+        # Сетка параметров
+        param_grid = {
+            'model__hidden_units': GRID_HIDDEN_NEURONS,
+            'batch_size': GRID_BATCH_SIZES
+        }
+
+        # Инициализация GridSearchCV
+        grid_search = GridSearchCV(
+            estimator=nn_model,
+            param_grid=param_grid,
+            cv=5,
+            scoring=METRIC,
+            n_jobs=-1,
+            verbose=2
+        )
+
+        # Поиск по сетке GridSearchCV
+        grid_search.fit(x_train, y_train)
+
+        print()
+        print('Grid Search CV results:')
+        print(f'Best {METRIC}: {grid_search.best_score_:.3f}')
+        print(f'Best params: {grid_search.best_params_}')
+
+        # Оценка на тестовой выборке
+        best_nn_model = grid_search.best_estimator_
+        test_metric = best_nn_model.score(x_test, y_test)
+        print(f'Test {METRIC}: {test_metric:.3f}')
+

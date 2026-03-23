@@ -2,7 +2,30 @@ import time
 import numpy as np
 
 from keras.models import Sequential
-from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.layers import Dense, Input, Dropout
+
+
+def create_nn_model(hidden_units: int) -> Sequential:
+    nn_model = Sequential([
+        # Входной слой
+        Input(shape=(28 * 28,), name='input'),
+
+        # Скрытый слой
+        Dense(hidden_units, activation='softmax', name='hidden'),
+        Dropout(0.2, name='hidden_dropout'),
+
+        # Выходной слой
+        Dense(10, activation='softmax', name='output')
+    ])
+
+    # Компиляция модели
+    nn_model.compile(
+        optimizer='adam',
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy']
+    )
+
+    return nn_model
 
 
 def grid_search_nn(x_train: np.ndarray, y_train: np.ndarray, hidden_neurons: list, batch_sizes: list, params: dict):
