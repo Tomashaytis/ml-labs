@@ -21,6 +21,7 @@ from src.utils.sem2.lab1 import grid_search_nn
 EPOCHS = 10
 BATCH_SIZE = 32
 VALIDATION_SPLIT = 0.2
+SEED = 42
 
 OPTIMIZER = 'adam'
 LOSS = 'sparse_categorical_crossentropy'
@@ -36,7 +37,7 @@ OUTPUT_UNITS = 10
 GRID_HIDDEN_NEURONS = [750, 1000, 1250, 1500, 1750]
 GRID_BATCH_SIZES = [2, 4, 8, 16, 32]
 
-OPTION = 'eval'  # 'train', 'eval', 'grid'
+OPTION = 'train'  # 'train', 'eval', 'grid'
 MODEL_PATH = os.path.join('models', 'nn_model.keras')
 SHOW_DATASET_STATS = True
 
@@ -44,6 +45,7 @@ SHOW_DATASET_STATS = True
 if __name__ == '__main__':
     plotter = ImagePlotter(cmap='gray', heatmap_cmap='Reds')
     tf.get_logger().setLevel('ERROR')
+    tf.random.set_seed(SEED)
 
     # Загрузка и отображение датасета
     print()
@@ -66,6 +68,12 @@ if __name__ == '__main__':
     x_test = x_test.astype("float32") / 255.0
     x_train = x_train.reshape(-1, 784)
     x_test = x_test.reshape(-1, 784)
+
+    # Перемешивание train-выборки перед разбиением на train/val
+    rng = np.random.default_rng(SEED)
+    train_indices = rng.permutation(len(x_train))
+    x_train = x_train[train_indices]
+    y_train = y_train[train_indices]
 
     if OPTION == 'train':
         # Создание модели с одним скрытым слоем
@@ -91,11 +99,16 @@ if __name__ == '__main__':
         # Обучение модели
         print()
         print('Train model...')
+        val_size = int(VALIDATION_SPLIT * len(x_train))
+        x_val, y_val = x_train[:val_size], y_train[:val_size]
+        x_train_fit, y_train_fit = x_train[val_size:], y_train[val_size:]
+
         history = nn_model.fit(
-            x_train, y_train,
+            x_train_fit, y_train_fit,
             epochs=EPOCHS,
             batch_size=BATCH_SIZE,
-            validation_split=VALIDATION_SPLIT
+            validation_data=(x_val, y_val),
+            shuffle=True
         )
 
         # Зависимость функции потерь и критерия качества от номера эпохи для Train и Val
