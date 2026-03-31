@@ -128,7 +128,34 @@ def main():
     x_train = x_train.astype('float32') / 255.0
     x_train = x_train.reshape(-1, INPUT_UNITS)
 
-    configs = [
+    configs_dropout = [
+        {
+            'name': '1 hidden, dropout=0.0, bs=32',
+            'hidden_layers': [100],
+            'batch_size': 32,
+            'dropout_rate': 0.0,
+        },
+        {
+            'name': '1 hidden, dropout=0.1, bs=32',
+            'hidden_layers': [100],
+            'batch_size': 32,
+            'dropout_rate': 0.1,
+        },
+        {
+            'name': '1 hidden, dropout=0.2, bs=32',
+            'hidden_layers': [100],
+            'batch_size': 32,
+            'dropout_rate': 0.2,
+        },
+        {
+            'name': '1 hidden, dropout=0.3, bs=32',
+            'hidden_layers': [100],
+            'batch_size': 32,
+            'dropout_rate': 0.3,
+        },
+    ]
+
+    configs_bs = [
         {
             'name': '1 hidden, dropout=0.2, bs=8',
             'hidden_layers': [100],
@@ -161,8 +188,23 @@ def main():
         },
     ]
 
+    configs_layer = [
+        {
+            'name': '1 hidden, dropout=0.2, bs=32',
+            'hidden_layers': [100],
+            'batch_size': 32,
+            'dropout_rate': 0.2,
+        },
+        {
+            'name': '2 hidden, dropout=0.2, bs=32',
+            'hidden_layers': [96, 32],
+            'batch_size': 32,
+            'dropout_rate': 0.2,
+        },
+    ]
+
     results = []
-    for cfg in configs:
+    for cfg in configs_layer:
         results.append(train_config(
             cfg['name'],
             cfg['hidden_layers'],
