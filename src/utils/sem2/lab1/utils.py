@@ -5,8 +5,8 @@ from keras.models import Sequential
 from tensorflow.keras.layers import Dense, Input, Dropout
 
 
-def create_nn_model(hidden_units: int) -> Sequential:
-    nn_model = Sequential([
+def create_fnn_model(hidden_units: int) -> Sequential:
+    fnn_model = Sequential([
         # Входной слой
         Input(shape=(28 * 28,), name='input'),
 
@@ -19,16 +19,16 @@ def create_nn_model(hidden_units: int) -> Sequential:
     ])
 
     # Компиляция модели
-    nn_model.compile(
+    fnn_model.compile(
         optimizer='adam',
         loss='sparse_categorical_crossentropy',
         metrics=['accuracy']
     )
 
-    return nn_model
+    return fnn_model
 
 
-def grid_search_nn(x_train: np.ndarray, y_train: np.ndarray, hidden_neurons: list, batch_sizes: list, params: dict):
+def grid_search_fnn(x_train: np.ndarray, y_train: np.ndarray, hidden_neurons: list, batch_sizes: list, params: dict):
     """Поиск оптимальных параметров по сетке для сети прямого распространения с одним скрытым слоем"""
     results = []
     best_metric = 0
@@ -47,7 +47,7 @@ def grid_search_nn(x_train: np.ndarray, y_train: np.ndarray, hidden_neurons: lis
             print(f"\n[{current}/{total_combinations}] Test: units={neurons}, batch_size={batch_size}")
 
             # Создание модели
-            model = Sequential([
+            fnn_model = Sequential([
                 Input(shape=(params['input_units'],), name='input'),
                 Dense(neurons, activation=params['hidden_activation'], name='hidden'),
                 Dropout(params['hidden_dropout_rate'], name='hidden_dropout'),
@@ -55,7 +55,7 @@ def grid_search_nn(x_train: np.ndarray, y_train: np.ndarray, hidden_neurons: lis
             ])
 
             # Компиляция модели
-            model.compile(
+            fnn_model.compile(
                 optimizer=params['optimizer'],
                 loss=params['loss'],
                 metrics=[params['metric']]
@@ -63,7 +63,7 @@ def grid_search_nn(x_train: np.ndarray, y_train: np.ndarray, hidden_neurons: lis
 
             # Обучение модели
             start_time = time.time()
-            history = model.fit(
+            history = fnn_model.fit(
                 x_train, y_train,
                 epochs=params['epochs'],
                 batch_size=batch_size,

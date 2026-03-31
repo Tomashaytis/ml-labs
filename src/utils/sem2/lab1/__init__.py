@@ -1,6 +1,6 @@
-from .utils import grid_search_nn, create_nn_model
+from .utils import grid_search_fnn, create_fnn_model
 
 __all__ = [
-    'grid_search_nn',
-    'create_nn_model',
+    'grid_search_fnn',
+    'create_fnn_model',
 ]

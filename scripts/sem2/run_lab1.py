@@ -18,7 +18,7 @@ from sklearn.model_selection import GridSearchCV
 from scikeras.wrappers import KerasClassifier
 
 from src.draw import ImagePlotter
-from src.utils.sem2.lab1 import grid_search_nn, create_nn_model
+from src.utils.sem2.lab1 import grid_search_fnn, create_fnn_model
 
 EPOCHS = 10
 BATCH_SIZE = 32
@@ -40,7 +40,7 @@ GRID_HIDDEN_NEURONS = [1500, 1750]
 GRID_BATCH_SIZES = [16, 32]
 
 OPTION = 'train'  # 'train', 'eval', 'grid', 'grid-cv'
-MODEL_PATH = os.path.join('models', 'nn_model.keras')
+MODEL_PATH = os.path.join('models', 'fnn_model.keras')
 SHOW_DATASET_STATS = True
 
 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     if OPTION == 'train':
         # Создание модели с одним скрытым слоем
-        nn_model = Sequential([
+        fnn_model = Sequential([
             # Входной слой
             Input(shape=(INPUT_UNITS,), name='input'),
 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         ])
 
         # Компиляция модели
-        nn_model.compile(
+        fnn_model.compile(
             optimizer=OPTIMIZER,
             loss=LOSS,
             metrics=[METRIC]
@@ -105,7 +105,7 @@ if __name__ == '__main__':
         x_val, y_val = x_train[:val_size], y_train[:val_size]
         x_train_fit, y_train_fit = x_train[val_size:], y_train[val_size:]
 
-        history = nn_model.fit(
+        history = fnn_model.fit(
             x_train_fit, y_train_fit,
             epochs=EPOCHS,
             batch_size=BATCH_SIZE,
@@ -129,18 +129,18 @@ if __name__ == '__main__':
         # Сохранение модели
         print()
         print('Save model...')
-        nn_model.save(MODEL_PATH)
+        fnn_model.save(MODEL_PATH)
 
     elif OPTION == 'eval':
         # Загрузка модели
         print()
         print('Load model...')
-        nn_model = load_model(MODEL_PATH)
+        fnn_model = load_model(MODEL_PATH)
 
         # Качество работы модели на тестовой выборке
         print()
         print('Test model...')
-        loss_and_metrics = nn_model.evaluate(x_test, y_test)
+        loss_and_metrics = fnn_model.evaluate(x_test, y_test)
         test_loss = loss_and_metrics[0]
         test_accuracy = loss_and_metrics[1]
         print(f'Test loss: {test_loss:.3f}')
@@ -149,10 +149,11 @@ if __name__ == '__main__':
         # Confusion Matrix
         print()
         print('Predict...')
-        y_pred_proba = nn_model.predict(x_test)
+        y_pred_proba = fnn_model.predict(x_test)
         y_pred = np.argmax(y_pred_proba, axis=1)
         cm = confusion_matrix(y_test, y_pred)
-        plotter.plot_confusion_matrix(cm)
+        numbers = [str(i) for i in range(10)]
+        plotter.plot_confusion_matrix(cm, numbers)
 
         # Вычисление критерия качества по Confusion Matrix
         correct_predictions = np.trace(cm)
@@ -192,7 +193,7 @@ if __name__ == '__main__':
             'epochs': EPOCHS,
             'validation_split': VALIDATION_SPLIT,
         }
-        _, best_params, best_metric = grid_search_nn(x_train, y_train, GRID_HIDDEN_NEURONS, GRID_BATCH_SIZES, params)
+        _, best_params, best_metric = grid_search_fnn(x_train, y_train, GRID_HIDDEN_NEURONS, GRID_BATCH_SIZES, params)
 
         print()
         print(f'Best {METRIC}: {best_metric:.3f}')
@@ -200,8 +201,8 @@ if __name__ == '__main__':
 
     elif OPTION == 'grid-cv':
         # Keras обёртка для модели
-        nn_model = KerasClassifier(
-            model=create_nn_model,
+        fnn_model = KerasClassifier(
+            model=create_fnn_model,
             epochs=EPOCHS,
             batch_size=BATCH_SIZE,
             validation_split=VALIDATION_SPLIT,
@@ -216,7 +217,7 @@ if __name__ == '__main__':
 
         # Инициализация GridSearchCV
         grid_search = GridSearchCV(
-            estimator=nn_model,
+            estimator=fnn_model,
             param_grid=param_grid,
             cv=5,
             scoring=METRIC,
@@ -233,7 +234,7 @@ if __name__ == '__main__':
         print(f'Best params: {grid_search.best_params_}')
 
         # Оценка на тестовой выборке
-        best_nn_model = grid_search.best_estimator_
-        test_metric = best_nn_model.score(x_test, y_test)
+        best_fnn_model = grid_search.best_estimator_
+        test_metric = best_fnn_model.score(x_test, y_test)
         print(f'Test {METRIC}: {test_metric:.3f}')
 

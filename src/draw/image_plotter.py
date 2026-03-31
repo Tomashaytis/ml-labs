@@ -133,12 +133,11 @@ class ImagePlotter:
         plt.tight_layout()
         plt.show()
 
-    def plot_confusion_matrix(self, cm: np.ndarray):
-        numbers = [str(i) for i in range(10)]
-
+    def plot_confusion_matrix(self, cm: np.ndarray, class_names: list):
+        """Отображает Confusion Matrix"""
         plt.figure(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt='d', cmap=self._heatmap_cmap,
-                    xticklabels=numbers, yticklabels=numbers)
+                    xticklabels=class_names, yticklabels=class_names)
         plt.title('Confusion Matrix')
         plt.xlabel('Predicted Label')
         plt.ylabel('True Label')
@@ -256,18 +255,17 @@ class ImagePlotter:
         plt.tight_layout()
         plt.show()
 
-    def imshow_cifer10(self, sample: np.ndarray, true_labels: np.array, class_name: list,
-                       title: str = "Classes of cifer10 dataset", images_per_class: int = 4):
-        """Отображает классы из датасета cifer10 (по images_per_class изображений на класс)"""
+    def imshow_cifer10(self, sample: np.ndarray, true_labels: np.array, class_names: list,
+                       title: str = "Classes of cifar10 dataset"):
+        """Отображает классы из датасета cifar10"""
         if len(np.unique(true_labels)) < 10:
             raise ValueError('Not all class labels are in the sample')
 
-        # Собираем по images_per_class изображений для каждого класса
         class_images = {i: [] for i in range(10)}
 
         for class_label in range(10):
             indices = np.where(true_labels == class_label)[0]
-            selected_indices = np.random.choice(indices, images_per_class, replace=False)
+            selected_indices = np.random.choice(indices, 4, replace=False)
             class_images[class_label] = list(sample[selected_indices])
 
         rows = 2
@@ -293,7 +291,7 @@ class ImagePlotter:
                                        bottom_row], axis=0)
 
                 axes[i, j].imshow(grid, cmap=self._cmap)
-                axes[i, j].set_title(class_name[class_label])
+                axes[i, j].set_title(class_names[class_label])
                 axes[i, j].axis('off')
 
         plt.tight_layout()
