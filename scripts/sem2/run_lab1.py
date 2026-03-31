@@ -39,7 +39,7 @@ OUTPUT_UNITS = 10
 GRID_HIDDEN_NEURONS = [1500, 1750]
 GRID_BATCH_SIZES = [16, 32]
 
-OPTION = 'grid-cv'  # 'train', 'eval', 'grid', 'grid-cv'
+OPTION = 'train'  # 'train', 'eval', 'grid', 'grid-cv'
 MODEL_PATH = os.path.join('models', 'nn_model.keras')
 SHOW_DATASET_STATS = True
 
@@ -187,6 +187,7 @@ if __name__ == '__main__':
             'input_units': INPUT_UNITS,
             'hidden_activation': HIDDEN_ACTIVATION,
             'output_activation': OUTPUT_ACTIVATION,
+            'hidden_dropout_rate': HIDDEN_DROPOUT_RATE,
             'output_units': OUTPUT_UNITS,
             'epochs': EPOCHS,
             'validation_split': VALIDATION_SPLIT,
@@ -224,9 +225,9 @@ if __name__ == '__main__':
         )
 
         # Поиск по сетке GridSearchCV
+        print()
         grid_search.fit(x_train, y_train)
 
-        print()
         print('Grid Search CV results:')
         print(f'Best {METRIC}: {grid_search.best_score_:.3f}')
         print(f'Best params: {grid_search.best_params_}')

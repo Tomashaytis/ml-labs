@@ -79,3 +79,8 @@ GRID SEARCH
 
 Best: units=1750, batch_size=32
   Train acc: 0.9688, Val acc: 0.9576, Time: 262.54s
+
+Grid Search CV results:
+Best accuracy: 0.933
+Best params: {'batch_size': 16, 'model__hidden_units': 1750}
+Test accuracy: 0.936

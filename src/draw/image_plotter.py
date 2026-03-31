@@ -233,22 +233,68 @@ class ImagePlotter:
             if digit not in digits:
                 digits[digit] = sample[index]
 
-        fig, axes = plt.subplots(4, 3, figsize=(4, 5))
+        rows = 4
+        cols = 3
+
+        fig, axes = plt.subplots(rows, cols, figsize=(4, 5))
         fig.suptitle(title)
 
-        for i in range(4):
-            for j in range(3):
-                if i < 3:
-                    digit = i * 3 + j + 1
+        for i in range(rows):
+            for j in range(cols):
+                if i < cols:
+                    digit = i * cols + j + 1
                     axes[i, j].imshow(digits[digit], cmap=self._cmap)
                     axes[i, j].set_title(digit)
                     axes[i, j].axis('off')
                 else:
                     axes[i, j].axis('off')
 
-        axes[3, 1].imshow(digits[0], cmap=self._cmap)
-        axes[3, 1].set_title(0)
-        axes[3, 1].axis('off')
+        axes[cols, 1].imshow(digits[0], cmap=self._cmap)
+        axes[cols, 1].set_title(0)
+        axes[cols, 1].axis('off')
+
+        plt.tight_layout()
+        plt.show()
+
+    def imshow_cifer10(self, sample: np.ndarray, true_labels: np.array, class_name: list,
+                       title: str = "Classes of cifer10 dataset", images_per_class: int = 4):
+        """Отображает классы из датасета cifer10 (по images_per_class изображений на класс)"""
+        if len(np.unique(true_labels)) < 10:
+            raise ValueError('Not all class labels are in the sample')
+
+        # Собираем по images_per_class изображений для каждого класса
+        class_images = {i: [] for i in range(10)}
+
+        for class_label in range(10):
+            indices = np.where(true_labels == class_label)[0]
+            selected_indices = np.random.choice(indices, images_per_class, replace=False)
+            class_images[class_label] = list(sample[selected_indices])
+
+        rows = 2
+        cols = 5
+        padding = 2
+
+        fig, axes = plt.subplots(rows, cols, figsize=(10, 5))
+        fig.suptitle(title)
+
+        for i in range(rows):
+            for j in range(cols):
+                class_label = i * cols + j
+                images = class_images[class_label]
+
+                top_row = np.concatenate([images[0],
+                                          np.ones((images[0].shape[0], padding, 3), dtype=np.uint8) * 255,
+                                          images[1]], axis=1)
+                bottom_row = np.concatenate([images[2],
+                                             np.ones((images[2].shape[0], padding, 3), dtype=np.uint8) * 255,
+                                             images[3]], axis=1)
+                grid = np.concatenate([top_row,
+                                       np.ones((padding, top_row.shape[1], 3), dtype=np.uint8) * 255,
+                                       bottom_row], axis=0)
+
+                axes[i, j].imshow(grid, cmap=self._cmap)
+                axes[i, j].set_title(class_name[class_label])
+                axes[i, j].axis('off')
 
         plt.tight_layout()
         plt.show()

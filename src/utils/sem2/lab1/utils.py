@@ -50,6 +50,7 @@ def grid_search_nn(x_train: np.ndarray, y_train: np.ndarray, hidden_neurons: lis
             model = Sequential([
                 Input(shape=(params['input_units'],), name='input'),
                 Dense(neurons, activation=params['hidden_activation'], name='hidden'),
+                Dropout(params['hidden_dropout_rate'], name='hidden_dropout'),
                 Dense(params['output_units'], activation=params['output_activation'], name='output')
             ])
 
