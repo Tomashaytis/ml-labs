@@ -11,17 +11,18 @@ if PROJECT_ROOT not in sys.path:
 import numpy as np
 import tensorflow as tf
 
-from keras.models import Sequential, load_model
 from keras.datasets import cifar10
 from keras.callbacks import ModelCheckpoint
-from keras.layers import Dense, Input, Dropout, Conv2D, Flatten, MaxPooling2D
+from keras.models import Sequential, load_model
+from keras.layers import (Dense, Input, Dropout, Conv2D, Flatten, MaxPooling2D,
+                          RandomFlip, RandomRotation, RandomZoom, RandomTranslation, RandomContrast)
 from sklearn.metrics import confusion_matrix
 
 from src.draw import ImagePlotter
 
 CLASSES = ['airplane', 'automobile', 'bird', 'cat', 'deer',
            'dog', 'frog', 'horse', 'ship', 'truck']
-EPOCHS = 10
+EPOCHS = 30
 BATCH_SIZE = 32
 VALIDATION_SPLIT = 0.2
 SEED = 42
@@ -38,8 +39,8 @@ CONV_KERNEL_SIZE = (3, 3)
 CONV_ACTIVATION = 'relu'
 CONV_PADDING = 'same'
 POOL_SIZE = (2, 2)
-DROPOUT_RATE = 0.2
-HIDDEN_UNITS = 128
+DROPOUT_RATE = 0.5
+HIDDEN_UNITS = 256
 HIDDEN_ACTIVATION = 'relu'
 OUTPUT_UNITS = 10
 OUTPUT_ACTIVATION = 'softmax'
@@ -76,17 +77,27 @@ if __name__ == '__main__':
     # Нормировка
     x_train, x_test = x_train / 255.0, x_test / 255.0
 
-    # Перемешивание train-выборки перед разбиением на train/val
-    rng = np.random.default_rng(SEED)
-    train_indices = rng.permutation(len(x_train))
-    x_train = x_train[train_indices]
-    y_train = y_train[train_indices]
-
     if OPTION == 'train':
+        # Перемешивание train-выборки перед разбиением на train/val
+        rng = np.random.default_rng(SEED)
+        train_indices = rng.permutation(len(x_train))
+        x_train = x_train[train_indices]
+        y_train = y_train[train_indices]
+
+        # Слой аугментации
+        data_augmentation = Sequential([
+            RandomFlip("horizontal", name='random_flip'),
+            RandomRotation(0.03, name='random_rotation'),
+            RandomZoom(0.03, name='random_zoom'),
+        ], name='data_augmentation')
+
         # Создание модели
         cnn_model = Sequential([
             # Входной слой
             Input(shape=INPUT_SHAPE, name='input'),
+
+            # Слой аугментации
+            data_augmentation,
 
             # Первый свёрточный слой
             Conv2D(CONV_1_FILTERS, CONV_KERNEL_SIZE, activation=CONV_ACTIVATION, padding=CONV_PADDING, name='conv-1'),
@@ -159,6 +170,12 @@ if __name__ == '__main__':
         )
 
     elif OPTION == 'eval':
+        # Перемешивание test-выборки
+        rng = np.random.default_rng(SEED)
+        test_indices = rng.permutation(len(x_test))
+        x_test = x_test[test_indices]
+        y_test = y_test[test_indices]
+
         # Загрузка модели
         print()
         print('Load model...')
