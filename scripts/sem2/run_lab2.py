@@ -48,7 +48,6 @@ OUTPUT_ACTIVATION = 'softmax'
 CHECKPOINT_MONITOR = 'val_loss'
 CHECKPOINT_MODE = 'min'
 
-
 OPTION = 'eval' # train, eval
 MODEL_PATH = os.path.join('models', 'cnn_model.keras')
 SHOW_DATASET_STATS = True
