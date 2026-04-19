@@ -15,7 +15,7 @@ from keras.datasets import cifar10
 from keras.callbacks import ModelCheckpoint
 from keras.models import Sequential, load_model
 from keras.layers import (Dense, Input, Dropout, Conv2D, Flatten, MaxPooling2D,
-                          RandomFlip, RandomRotation, RandomZoom, RandomTranslation, RandomContrast)
+                          RandomFlip, RandomRotation, RandomZoom)
 from sklearn.metrics import confusion_matrix
 
 from src.draw import ImagePlotter
@@ -48,9 +48,85 @@ OUTPUT_ACTIVATION = 'softmax'
 CHECKPOINT_MONITOR = 'val_loss'
 CHECKPOINT_MODE = 'min'
 
-OPTION = 'eval' # train, eval
+OPTION = 'transfer'  # train, eval, transfer
 MODEL_PATH = os.path.join('models', 'cnn_model.keras')
+MODEL_8_CLASSES_PATH = os.path.join('models', 'cnn_model_8_classes.keras')
+TRANSFER_MODEL_PATH = os.path.join('models', 'cnn_model_transfer.keras')
 SHOW_DATASET_STATS = True
+
+# Классы, исключаемые при первом этапе transfer learning (п.3)
+EXCLUDED_CLASSES = [0, 1]
+
+
+def build_cnn_model(output_units: int = OUTPUT_UNITS, with_augmentation: bool = True):
+    # Слой аугментации
+    data_augmentation = Sequential([
+        RandomFlip("horizontal", name='random_flip'),
+        RandomRotation(0.03, name='random_rotation'),
+        RandomZoom(0.03, name='random_zoom'),
+    ], name='data_augmentation')
+
+    # Входной слой
+    layers = [Input(shape=INPUT_SHAPE, name='input')]
+
+    # Слой аугментации
+    if with_augmentation:
+        layers.append(data_augmentation)
+
+    layers.extend([
+        # Первый свёрточный слой
+        Conv2D(CONV_1_FILTERS, CONV_KERNEL_SIZE, activation=CONV_ACTIVATION, padding=CONV_PADDING, name='conv-1'),
+        MaxPooling2D(POOL_SIZE, name='max-pooling-1'),
+
+        # Второй свёрточный слой
+        Conv2D(CONV_2_FILTERS, CONV_KERNEL_SIZE, activation=CONV_ACTIVATION, padding=CONV_PADDING, name='conv-2'),
+        MaxPooling2D(POOL_SIZE, name='max-pooling-2'),
+
+        # Третий свёрточный слой
+        Conv2D(CONV_3_FILTERS, CONV_KERNEL_SIZE, activation=CONV_ACTIVATION, padding=CONV_PADDING, name='conv-3'),
+        MaxPooling2D(POOL_SIZE, name='max-pooling-3'),
+
+        # Слой развертки
+        Flatten(name='flatten'),
+
+        # Dropout
+        Dropout(DROPOUT_RATE, name='dropout'),
+        
+        # Полносвязный слой
+        Dense(HIDDEN_UNITS, activation=HIDDEN_ACTIVATION, name='hidden'),
+
+        # Выходной слой
+        Dense(output_units, activation=OUTPUT_ACTIVATION, name='output')
+    ])
+
+    return Sequential(layers)
+
+
+def build_checkpoint_callback(model_path: str):
+    return ModelCheckpoint(
+        filepath=model_path,
+        monitor=CHECKPOINT_MONITOR,
+        mode=CHECKPOINT_MODE,
+        save_best_only=True,
+        save_weights_only=False
+    )
+
+
+def split_train_val(x_data: np.ndarray, y_data: np.ndarray, validation_split: float):
+    val_size = int(validation_split * len(x_data))
+    x_val, y_val = x_data[:val_size], y_data[:val_size]
+    x_train_fit, y_train_fit = x_data[val_size:], y_data[val_size:]
+    return x_train_fit, y_train_fit, x_val, y_val
+
+
+def class_accuracy(model, x_data: np.ndarray, y_true: np.ndarray, class_label: int):
+    y_pred = np.argmax(model.predict(x_data, verbose=0), axis=1)
+    class_mask = (y_true == class_label)
+    total = np.sum(class_mask)
+    if total == 0:
+        return 0.0
+    correct = np.sum((y_pred == class_label) & class_mask)
+    return correct / total
 
 
 if __name__ == '__main__':
@@ -83,45 +159,8 @@ if __name__ == '__main__':
         x_train = x_train[train_indices]
         y_train = y_train[train_indices]
 
-        # Слой аугментации
-        data_augmentation = Sequential([
-            RandomFlip("horizontal", name='random_flip'),
-            RandomRotation(0.03, name='random_rotation'),
-            RandomZoom(0.03, name='random_zoom'),
-        ], name='data_augmentation')
-
         # Создание модели
-        cnn_model = Sequential([
-            # Входной слой
-            Input(shape=INPUT_SHAPE, name='input'),
-
-            # Слой аугментации
-            data_augmentation,
-
-            # Первый свёрточный слой
-            Conv2D(CONV_1_FILTERS, CONV_KERNEL_SIZE, activation=CONV_ACTIVATION, padding=CONV_PADDING, name='conv-1'),
-            MaxPooling2D(POOL_SIZE, name='max-pooling-1'),
-
-            # Второй свёрточный слой
-            Conv2D(CONV_2_FILTERS, CONV_KERNEL_SIZE, activation=CONV_ACTIVATION, padding=CONV_PADDING, name='conv-2'),
-            MaxPooling2D(POOL_SIZE, name='max-pooling-2'),
-
-            # Третий свёрточный слой
-            Conv2D(CONV_3_FILTERS, CONV_KERNEL_SIZE, activation=CONV_ACTIVATION, padding=CONV_PADDING, name='conv-3'),
-            MaxPooling2D(POOL_SIZE, name='max-pooling-3'),
-
-            # Слой развертки
-            Flatten(name='flatten'),
-
-            # Dropout
-            Dropout(DROPOUT_RATE, name='dropout'),
-
-            # Полносвязный слой
-            Dense(HIDDEN_UNITS, activation=HIDDEN_ACTIVATION, name='hidden'),
-
-            # Выходной слой
-            Dense(OUTPUT_UNITS, activation=OUTPUT_ACTIVATION, name='output')
-        ])
+        cnn_model = build_cnn_model()
 
         # Компиляция модели
         cnn_model.compile(
@@ -131,20 +170,12 @@ if __name__ == '__main__':
         )
 
         # Callback для сохранения лучшей модели на Val
-        checkpoint_callback = ModelCheckpoint(
-            filepath=MODEL_PATH,
-            monitor=CHECKPOINT_MONITOR,
-            mode=CHECKPOINT_MODE,
-            save_best_only=True,
-            save_weights_only=False
-        )
+        checkpoint_callback = build_checkpoint_callback(MODEL_PATH)
 
         # Обучение модели
         print()
         print('Train model...')
-        val_size = int(VALIDATION_SPLIT * len(x_train))
-        x_val, y_val = x_train[:val_size], y_train[:val_size]
-        x_train_fit, y_train_fit = x_train[val_size:], y_train[val_size:]
+        x_train_fit, y_train_fit, x_val, y_val = split_train_val(x_train, y_train, VALIDATION_SPLIT)
 
         history = cnn_model.fit(
             x_train_fit, y_train_fit,
@@ -230,3 +261,94 @@ if __name__ == '__main__':
             CLASSES,
             title="False predictions per class"
         )
+
+    elif OPTION == 'transfer':
+        print()
+        print('Transfer learning mode...')
+        print(f'Excluded classes on stage 1: {EXCLUDED_CLASSES} -> {[CLASSES[c] for c in EXCLUDED_CLASSES]}')
+
+        # Этап 1: обучение на 8 классах
+        train_mask_8 = ~np.isin(y_train, EXCLUDED_CLASSES)
+        x_train_8 = x_train[train_mask_8]
+        y_train_8_orig = y_train[train_mask_8]
+
+        remaining_classes = [c for c in range(OUTPUT_UNITS) if c not in EXCLUDED_CLASSES]
+        class_to_new = {old_class: new_class for new_class, old_class in enumerate(remaining_classes)}
+        y_train_8 = np.array([class_to_new[label] for label in y_train_8_orig], dtype=np.int32)
+
+        rng = np.random.default_rng(SEED)
+        train_indices_8 = rng.permutation(len(x_train_8))
+        x_train_8 = x_train_8[train_indices_8]
+        y_train_8 = y_train_8[train_indices_8]
+
+        model_8 = build_cnn_model(output_units=len(remaining_classes), with_augmentation=True)
+        model_8.compile(optimizer=OPTIMIZER, loss=LOSS, metrics=[METRIC])
+
+        checkpoint_8 = build_checkpoint_callback(MODEL_8_CLASSES_PATH)
+
+        x_train_8_fit, y_train_8_fit, x_val_8, y_val_8 = split_train_val(x_train_8, y_train_8, VALIDATION_SPLIT)
+
+        print()
+        print('Stage 1/2: train base model on 8 classes...')
+        model_8.fit(
+            x_train_8_fit, y_train_8_fit,
+            epochs=EPOCHS,
+            batch_size=BATCH_SIZE,
+            validation_data=(x_val_8, y_val_8),
+            callbacks=[checkpoint_8],
+            shuffle=True
+        )
+
+        # Загружаем лучшую модель этапа 1
+        model_8 = load_model(MODEL_8_CLASSES_PATH)
+
+        # Удаляем 2 последних полносвязных слоя и замораживаем базу
+        model_8.pop()
+        model_8.pop()
+        model_8.trainable = False
+
+        # Этап 2: новая голова на 10 классов
+        transfer_model = Sequential([
+            model_8,
+            Dense(HIDDEN_UNITS, activation=HIDDEN_ACTIVATION, name='transfer_hidden'),
+            Dense(OUTPUT_UNITS, activation=OUTPUT_ACTIVATION, name='transfer_output')
+        ], name='transfer_cnn')
+
+        transfer_model.compile(optimizer=OPTIMIZER, loss=LOSS, metrics=[METRIC])
+        checkpoint_transfer = build_checkpoint_callback(TRANSFER_MODEL_PATH)
+
+        train_indices = rng.permutation(len(x_train))
+        x_train_full = x_train[train_indices]
+        y_train_full = y_train[train_indices]
+        x_train_fit, y_train_fit, x_val, y_val = split_train_val(x_train_full, y_train_full, VALIDATION_SPLIT)
+
+        print()
+        print('Stage 2/2: train transfer head on 10 classes...')
+        transfer_model.fit(
+            x_train_fit, y_train_fit,
+            epochs=EPOCHS,
+            batch_size=BATCH_SIZE,
+            validation_data=(x_val, y_val),
+            callbacks=[checkpoint_transfer],
+            shuffle=True
+        )
+
+        # Сравнение точности по исключенным классам с моделью из п.2
+        print()
+        print('Compare excluded classes accuracy with base model from task 2...')
+        transfer_model = load_model(TRANSFER_MODEL_PATH)
+
+        if os.path.exists(MODEL_PATH):
+            base_model = load_model(MODEL_PATH)
+            for excluded_class in EXCLUDED_CLASSES:
+                base_acc = class_accuracy(base_model, x_test, y_test, excluded_class)
+                transfer_acc = class_accuracy(transfer_model, x_test, y_test, excluded_class)
+
+                print(
+                    f'Class {excluded_class} ({CLASSES[excluded_class]}): '
+                    f'base={base_acc:.3f}, transfer={transfer_acc:.3f}, '
+                    f'delta={transfer_acc - base_acc:+.3f}'
+                )
+        else:
+            print(f'Base model is not found: {MODEL_PATH}')
+            print('Run task 2 training first to compare with transfer learning result.')
