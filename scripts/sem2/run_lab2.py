@@ -48,7 +48,7 @@ OUTPUT_ACTIVATION = 'softmax'
 CHECKPOINT_MONITOR = 'val_loss'
 CHECKPOINT_MODE = 'min'
 
-OPTION = 'transfer'  # train, eval, transfer
+OPTION = 'train'  # train, eval, transfer
 MODEL_PATH = os.path.join('models', 'cnn_model.keras')
 MODEL_8_CLASSES_PATH = os.path.join('models', 'cnn_model_8_classes.keras')
 TRANSFER_MODEL_PATH = os.path.join('models', 'cnn_model_transfer.keras')
@@ -189,12 +189,12 @@ if __name__ == '__main__':
         # Зависимость функции потерь и критерия качества от номера эпохи для Train и Val
         metric_names = list(history.history.keys())[:4]
         metric_values = [history.history[name] for name in metric_names]
-        plotter.plot_four(
+        plotter.plot_train(
             'Metrics and Loss',
-            metric_values[0], metric_names[0],
-            metric_values[1], metric_names[1],
-            metric_values[2], metric_names[2],
-            metric_values[3], metric_names[3],
+            metric_values[0],
+            metric_values[2], 'Loss',
+            metric_values[1],
+            metric_values[3], 'Accuracy',
             xlabel='Epoch',
             ylabel='Value'
         )

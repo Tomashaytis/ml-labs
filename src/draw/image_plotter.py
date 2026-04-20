@@ -133,6 +133,34 @@ class ImagePlotter:
         plt.tight_layout()
         plt.show()
 
+    @staticmethod
+    def plot_train(subtitle: str,
+                  train_loss: Union[List, np.ndarray],
+                  val_loss: Union[List, np.ndarray], title1: str,
+                  train_metric: Union[List, np.ndarray],
+                  val_metric: Union[List, np.ndarray], title2: str,
+                  xlabel: str = '', ylabel: str = ''):
+        """Отображает результаты обучения"""
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 6))
+        fig.suptitle(subtitle)
+
+        ax1.plot(train_loss, label='train')
+        ax1.plot(val_loss, label='val')
+        ax1.set_title(title1)
+        ax1.set_xlabel(xlabel)
+        ax1.set_ylabel(ylabel)
+        ax1.grid(True, alpha=0.3)
+
+        ax2.plot(train_metric, label='train')
+        ax2.plot(val_metric, label='val')
+        ax2.set_title(title2)
+        ax2.set_xlabel(xlabel)
+        ax2.set_ylabel(ylabel)
+        ax2.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+        plt.show()
+
     def plot_confusion_matrix(self, cm: np.ndarray, class_names: list):
         """Отображает Confusion Matrix"""
         plt.figure(figsize=(8, 6))
