@@ -333,19 +333,19 @@ if __name__ == '__main__':
             shuffle=True
         )
 
-        # Сравнение точности по исключенным классам с моделью из п.2
+        # Сравнение точности по всем классам с моделью из п.2
         print()
-        print('Compare excluded classes accuracy with base model from task 2...')
+        print('Compare classes accuracy with base model from task 2...')
         transfer_model = load_model(TRANSFER_MODEL_PATH)
 
         if os.path.exists(MODEL_PATH):
             base_model = load_model(MODEL_PATH)
-            for excluded_class in EXCLUDED_CLASSES:
-                base_acc = class_accuracy(base_model, x_test, y_test, excluded_class)
-                transfer_acc = class_accuracy(transfer_model, x_test, y_test, excluded_class)
+            for class_label in range(OUTPUT_UNITS):
+                base_acc = class_accuracy(base_model, x_test, y_test, class_label)
+                transfer_acc = class_accuracy(transfer_model, x_test, y_test, class_label)
 
                 print(
-                    f'Class {excluded_class} ({CLASSES[excluded_class]}): '
+                    f'Class {class_label} ({CLASSES[class_label]}): '
                     f'base={base_acc:.3f}, transfer={transfer_acc:.3f}, '
                     f'delta={transfer_acc - base_acc:+.3f}'
                 )
