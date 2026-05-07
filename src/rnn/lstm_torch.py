@@ -1,25 +1,24 @@
-'''
-        -------   LSTM   -----
-
+"""
+LSTM
 Modified from
 https://colab.research.google.com/github/dlmacedo/starter-academic/blob/master/content/courses/deeplearning/notebooks/pytorch/Time_Series_Prediction_with_LSTM_Using_PyTorch.ipynb#scrollTo=CKEzO1jzKydL
+"""
 
-'''
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 import torch
+import numpy as np
+import pandas as pd
 import torch.nn as nn
+import matplotlib.pyplot as plt
+
 from torch.autograd import Variable
 from sklearn.preprocessing import MinMaxScaler
 
 
-# MODEL
 class LSTM(nn.Module):
+    """Long-short-term memory model (LSTM)"""
 
-    def __init__(self, num_classes, input_size, hidden_size, num_layers):
+    def __init__(self, num_classes: int, input_size: int, hidden_size: int, num_layers: int):
+        """Initialize LSTM"""
         super(LSTM, self).__init__()
 
         self.num_classes = num_classes
@@ -33,6 +32,7 @@ class LSTM(nn.Module):
         self.fc = nn.Linear(hidden_size, num_classes)
 
     def forward(self, x):
+        """LSTM forward propagation"""
         h_0 = Variable(torch.zeros(
             self.num_layers, x.size(0), self.hidden_size))
 
@@ -50,22 +50,25 @@ class LSTM(nn.Module):
 
 
 def sliding_windows(data, seq_length):
+    """Create sliding windows"""
     x = []
     y = []
 
-    for i in range(len(data)-seq_length-1):
-        _x = data[i:(i+seq_length)]
-        _y = data[i+seq_length]
+    for i in range(len(data) - seq_length - 1):
+        _x = data[i: (i + seq_length)]
+        _y = data[i + seq_length]
         x.append(_x)
         y.append(_y)
 
     return np.array(x),np.array(y)
 
-def load_data( dataset_name = 'data/airline-passengers.csv', dataset_label = 'Airline Passangers Data' ):
-    training_set = pd.read_csv( dataset_name )
-    training_set = training_set.iloc[:,1:2].values
+def load_data(dataset_path: str, dataset_label: str):
+    """Load data"""
+    training_set = pd.read_csv(dataset_path)
+    training_set = training_set.iloc[:, 1: 2].values
 
-    plt.plot(training_set, label = dataset_label)
+    plt.plot(training_set, label=dataset_label)
+    plt.title(f'Training Set ({dataset_label})')
     plt.show()
 
     sc = MinMaxScaler()
@@ -89,28 +92,32 @@ def load_data( dataset_name = 'data/airline-passengers.csv', dataset_label = 'Ai
     return sc, train_size, test_size,  dataX, dataY,  trainX, trainY,   testX, testY
 
 
+def train_and_test_model(dataset_path: str, dataset_label: str, params: dict):
+    """Train and test"""
+    if params['verbose'] is None or params['verbose'] is False:
+        log_every = 0
+    elif params['verbose'] is True:
+        log_every = 1
+    else:
+        log_every = params['verbose']
 
-# TRAIN and TEST
+    sc, train_size, test_size, dataX, dataY, trainX, trainY, testX, testY = load_data(
+        dataset_path=dataset_path,
+        dataset_label=dataset_label
+    )
 
-def train_and_test_model(dataset_name, dataset_label):
-    num_epochs = 2000
-    learning_rate = 0.01
-
-    input_size = 1
-    hidden_size = 2
-    num_layers = 1
-
-    num_classes = 1
-
-    sc, train_size, test_size, dataX, dataY, trainX, trainY, testX, testY = load_data(dataset_name = dataset_name, dataset_label=dataset_label)
-
-    lstm = LSTM(num_classes, input_size, hidden_size, num_layers)
+    lstm = LSTM(
+        params['num_classes'],
+        params['input_size'],
+        params['hidden_size'],
+        params['num_layers']
+    )
 
     criterion = torch.nn.MSELoss()  # mean-squared error for regression
-    optimizer = torch.optim.Adam(lstm.parameters(), lr=learning_rate)  #  torch.optim.SGD
+    optimizer = torch.optim.Adam(lstm.parameters(), lr=params['learning_rate'])  #  torch.optim.SGD
 
     # Train the model
-    for epoch in range(num_epochs):
+    for epoch in range(params['num_epochs']):
         outputs = lstm(trainX)
         optimizer.zero_grad()
 
@@ -120,7 +127,8 @@ def train_and_test_model(dataset_name, dataset_label):
         loss.backward()
 
         optimizer.step()
-        if epoch % 100 == 0:
+
+        if log_every > 0 and epoch % log_every == 0:
             print("Epoch: %d, loss: %1.5f" % (epoch, loss.item()))
 
 
@@ -133,14 +141,11 @@ def train_and_test_model(dataset_name, dataset_label):
     data_predict = sc.inverse_transform(data_predict)
     dataY_plot = sc.inverse_transform(dataY_plot)
 
-    plt.axvline(x=train_size, c='r', linestyle='--')
+    plt.axvline(x=train_size, c='r', linestyle='--', label='Train/Test split')
 
-    plt.plot(dataY_plot)
-    plt.plot(data_predict)
-    plt.suptitle('Time-Series Prediction')
+    plt.plot(dataY_plot, label='Dataset')
+    plt.plot(data_predict, label='LSTM')
+    plt.suptitle(f'Time-Series Prediction ({dataset_label})')
+    plt.legend()
     plt.show()
 
-
-
-if __name__ == "__main__":
-    train_and_test_model('data/airline-passengers.csv', 'Airline Passangers Data')  # ('data/airline-passengers.csv', 'Airline Passangers Data'), ('data/shampoo.csv', 'Shampoo Sales Data')

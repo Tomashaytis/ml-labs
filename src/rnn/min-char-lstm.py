@@ -1,20 +1,23 @@
-# Minimal character-based language model learning with an LSTM architecture.
-#
-# Overall code structure based on Andrej Karpathy's min-char-rnn model:
-#    https://gist.github.com/karpathy/d4dee566867f8291f086
-#
-# But the architecture is modified to be LSTM rather than vanilla RNN.
-# The companion blog post is:
-#   https://eli.thegreenplace.net/2018/minimal-character-based-lstm-implementation/
-#
-# Tested with Python 3.6
-#
-# Eli Bendersky [https://eli.thegreenplace.net]
-# BSD License per original (@karpathy)
+"""
+Minimal character-based language model learning with an LSTM architecture.
+
+Overall code structure based on Andrej Karpathy's min-char-rnn model:
+    https://gist.github.com/karpathy/d4dee566867f8291f086
+
+But the architecture is modified to be LSTM rather than vanilla RNN.
+he companion blog post is:
+    https://eli.thegreenplace.net/2018/minimal-character-based-lstm-implementation/
+
+Tested with Python 3.6
+
+Eli Bendersky [https://eli.thegreenplace.net]
+BSD License per original (@karpathy)
+"""
+
 from __future__ import print_function
 
-import numpy as np
 import sys
+import numpy as np
 
 # Make it possible to provide input file as a command-line argument; input.txt
 # is still the default.
