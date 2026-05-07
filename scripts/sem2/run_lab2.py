@@ -48,7 +48,7 @@ OUTPUT_ACTIVATION = 'softmax'
 CHECKPOINT_MONITOR = 'val_loss'
 CHECKPOINT_MODE = 'min'
 
-OPTION = 'train'  # train, eval, transfer
+OPTION = 'eval'  # train, eval, transfer
 MODEL_PATH = os.path.join('models', 'cnn_model.keras')
 MODEL_8_CLASSES_PATH = os.path.join('models', 'cnn_model_8_classes.keras')
 TRANSFER_MODEL_PATH = os.path.join('models', 'cnn_model_transfer.keras')
