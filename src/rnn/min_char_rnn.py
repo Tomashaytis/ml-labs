@@ -14,7 +14,7 @@ this code almost identical to the original.
 
 To run, learning a char-based language model from some text:
 
-    $ python min-char-rnn.py <text file>
+    $ python min_char_rnn.py <text file>
 
 ----
 
