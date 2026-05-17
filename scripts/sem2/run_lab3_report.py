@@ -11,8 +11,7 @@ if PROJECT_ROOT not in sys.path:
 from src.rnn import train_and_test_model, MinCharLSTM, MinCharRNN
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-LAB3_DIR = BASE_DIR / 'docs' / 'sem2' / 'lab3'
-ASSETS_DIR = LAB3_DIR / 'assets'
+ASSETS_DIR = BASE_DIR / 'artifacts' / 'sem2' / 'lab3'
 MODELS_DIR = BASE_DIR / 'models'
 DATA_DIR = BASE_DIR / 'data' / 'sem2' / 'lab3'
 

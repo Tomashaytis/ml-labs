@@ -5,8 +5,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from src.rnn import train_and_test_model, MinCharLSTM
-from src.rnn import MinCharRNN
+from src.rnn import train_and_test_model, MinCharLSTM, MinCharRNN
 
 AIRLINE_DATA_PATH = os.path.join('data', 'sem2', 'lab3', 'airline-passengers.csv')
 SHAMPOO_DATA_PATH = os.path.join('data', 'sem2', 'lab3', 'shampoo.csv')
@@ -15,7 +14,7 @@ CNUS_CLEAN_PATH = os.path.join('data', 'sem2', 'lab3', 'cnus-clean.txt')
 MIN_CHAR_LSTM_MODEL_PATH = os.path.join('models', 'min_char_lstm.npz')
 MIN_CHAR_RNN_MODEL_PATH = os.path.join('models', 'min_char_rnn_cnus_clean.npz')
 
-OPTION = 'min-char-rnn'  # airline, shampoo, min-char-lstm, min-char-rnn
+OPTION = 'airline'  # airline, shampoo, min-char-lstm, min-char-rnn
 MODE = 'test'
 
 
