@@ -418,7 +418,7 @@ class MinCharLSTM:
         """Save model parameters to file."""
         np.savez(
             filepath,
-            # Основные параметры
+            # Main parameters
             Wf=self._Wf, bf=self._bf,
             Wi=self._Wi, bi=self._bi,
             Wcc=self._Wcc, bcc=self._bcc,
@@ -443,7 +443,7 @@ class MinCharLSTM:
         """Load model parameters from file."""
         data = np.load(filepath, allow_pickle=True)
 
-        # Загрузка основных параметров
+        # Load main parameters
         self._Wf = data['Wf']
         self._bf = data['bf']
         self._Wi = data['Wi']
@@ -455,7 +455,7 @@ class MinCharLSTM:
         self._Wy = data['Wy']
         self._by = data['by']
 
-        # Загрузка Adagrad memory variables
+        # Load Adagrad memory variables
         self._mWf = data['mWf']
         self._mbf = data['mbf']
         self._mWi = data['mWi']
@@ -471,12 +471,11 @@ class MinCharLSTM:
         self._char_to_ix = {ch: i for i, ch in enumerate(self._chars)}
         self._ix_to_char = {i: ch for i, ch in enumerate(self._chars)}
 
-        # Обновление параметров архитектуры (если нужно)
         if 'vocab_size' in data:
             self._V = int(data['vocab_size'])
         if 'hidden_size' in data:
             self._H = int(data['hidden_size'])
-            self._HV = self._H + self._V  # Пересчитываем HV
+            self._HV = self._H + self._V
         if 'seq_length' in data:
             self._seq_length = int(data['seq_length'])
         if 'learning_rate' in data:
