@@ -62,14 +62,18 @@ def sliding_windows(data, seq_length):
 
     return np.array(x),np.array(y)
 
-def load_data(dataset_path: str, dataset_label: str):
+def load_data(dataset_path: str, dataset_label: str, plot_path: str | None = None):
     """Load data"""
     training_set = pd.read_csv(dataset_path)
     training_set = training_set.iloc[:, 1: 2].values
 
     plt.plot(training_set, label=dataset_label)
     plt.title(f'Training Set ({dataset_label})')
-    plt.show()
+    if plot_path:
+        plt.savefig(plot_path, dpi=200, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
 
     sc = MinMaxScaler()
     training_data = sc.fit_transform(training_set)
@@ -92,7 +96,7 @@ def load_data(dataset_path: str, dataset_label: str):
     return sc, train_size, test_size,  dataX, dataY,  trainX, trainY,   testX, testY
 
 
-def train_and_test_model(dataset_path: str, dataset_label: str, params: dict):
+def train_and_test_model(dataset_path: str, dataset_label: str, params: dict, plot_path: str | None = None):
     """Train and test"""
     if params['verbose'] is None or params['verbose'] is False:
         log_every = 0
@@ -103,7 +107,8 @@ def train_and_test_model(dataset_path: str, dataset_label: str, params: dict):
 
     sc, train_size, test_size, dataX, dataY, trainX, trainY, testX, testY = load_data(
         dataset_path=dataset_path,
-        dataset_label=dataset_label
+        dataset_label=dataset_label,
+        plot_path=None if plot_path is None else plot_path.replace('.png', '.data.png')
     )
 
     lstm = LSTM(
@@ -147,5 +152,9 @@ def train_and_test_model(dataset_path: str, dataset_label: str, params: dict):
     plt.plot(data_predict, label='LSTM')
     plt.suptitle(f'Time-Series Prediction ({dataset_label})')
     plt.legend()
-    plt.show()
+    if plot_path:
+        plt.savefig(plot_path, dpi=200, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
 

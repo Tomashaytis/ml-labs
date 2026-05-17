@@ -89,15 +89,20 @@ class MinCharRNN:
             ixes.append(ix)
         return ixes
 
-    def train(self, max_data: int = 1000000, verbose: int = 200):
+    def train(self, max_data: int = 1000000, verbose: int = 200, plot_path: str | None = None):
         n, p = 0, 0
-        smooth_loss = -np.log(1.0/self.vocab_size) * self.seq_length
+        smooth_loss = -np.log(1.0 / self.vocab_size) * self.seq_length
+        iterations = []
+        losses = []
+
         while p < max_data:
             if p + self.seq_length + 1 >= len(self.data) or n == 0:
                 hprev = np.zeros((self.hidden_size, 1))
                 p = 0
-            inputs = [self.char_to_ix[ch] for ch in self.data[p:p+self.seq_length]]
-            targets = [self.char_to_ix[ch] for ch in self.data[p+1:p+self.seq_length+1]]
+
+            inputs = [self.char_to_ix[ch] for ch in self.data[p:p + self.seq_length]]
+            targets = [self.char_to_ix[ch] for ch in self.data[p + 1:p + self.seq_length + 1]]
+
             if n % 1000 == 0:
                 sample_ix = self.sample(hprev, inputs[0], 200)
                 txt = ''.join(self.ix_to_char[ix] for ix in sample_ix)
@@ -106,17 +111,33 @@ class MinCharRNN:
 
             loss, dWxh, dWhh, dWhy, dbh, dby, hprev = self.loss_fun(inputs, targets, hprev)
             smooth_loss = smooth_loss * 0.999 + loss * 0.001
+
+            iterations.append(n)
+            losses.append(smooth_loss)
+
             if n % verbose == 0:
                 print('iter %d (p=%d), loss: %f' % (n, p, smooth_loss))
 
-            for param, dparam, mem in zip([self.Wxh, self.Whh, self.Why, self.bh, self.by],
-                                          [dWxh, dWhh, dWhy, dbh, dby],
-                                          [self.mWxh, self.mWhh, self.mWhy, self.mbh, self.mby]):
+            for param, dparam, mem in zip(
+                [self.Wxh, self.Whh, self.Why, self.bh, self.by],
+                [dWxh, dWhh, dWhy, dbh, dby],
+                [self.mWxh, self.mWhh, self.mWhy, self.mbh, self.mby],
+            ):
                 mem += dparam * dparam
                 param += -self.learning_rate * dparam / np.sqrt(mem + 1e-8)
 
             p += self.seq_length
             n += 1
+
+        if plot_path:
+            import matplotlib.pyplot as plt
+
+            plt.plot(iterations, losses)
+            plt.title('Loss per iteration')
+            plt.xlabel('Iteration')
+            plt.ylabel('Loss')
+            plt.savefig(plot_path, dpi=200, bbox_inches='tight')
+            plt.close()
 
     def generate(self, seed: str, n_chars: int = 200) -> str:
         if not seed:

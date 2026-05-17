@@ -294,7 +294,7 @@ class MinCharLSTM:
         cprev = np.random.randn(self._H, 1)
         self.grad_check(inputs, targets, hprev, cprev)
 
-    def train_and_test(self, data, max_data):
+    def train_and_test(self, data, max_data, plot_path=None):
         """Train model and test for symbols periodically."""
         start = time.time()
 
@@ -355,7 +355,11 @@ class MinCharLSTM:
         plt.title('Loss per iteration')
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
-        plt.show()
+        if plot_path:
+            plt.savefig(plot_path, dpi=200, bbox_inches='tight')
+            plt.close()
+        else:
+            plt.show()
 
     def generate(self, prompt: str, n_chars=200, temperature=1.0):
         """Generate text for prompt."""
