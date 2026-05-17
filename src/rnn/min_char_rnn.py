@@ -38,7 +38,7 @@ class MinCharRNN:
         self.mbh = np.zeros_like(self.bh)
         self.mby = np.zeros_like(self.by)
 
-    def loss_fun(self, inputs: List[int], targets: List[int], hprev: np.ndarray) -> Tuple[float, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def loss_function(self, inputs: List[int], targets: List[int], hprev: np.ndarray) -> Tuple[float, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         xs, hs, ys, ps = {}, {}, {}, {}
         hs[-1] = np.copy(hprev)
         loss = 0.0
@@ -109,7 +109,7 @@ class MinCharRNN:
                 print('---- \n Starting symbol >>> ', self.ix_to_char[inputs[0]])
                 print('Generated text after symbol \n %s \n ----' % (txt,))
 
-            loss, dWxh, dWhh, dWhy, dbh, dby, hprev = self.loss_fun(inputs, targets, hprev)
+            loss, dWxh, dWhh, dWhy, dbh, dby, hprev = self.loss_function(inputs, targets, hprev)
             smooth_loss = smooth_loss * 0.999 + loss * 0.001
 
             iterations.append(n)
