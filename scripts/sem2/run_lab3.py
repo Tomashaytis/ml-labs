@@ -13,8 +13,9 @@ SHAMPOO_DATA_PATH = os.path.join('data', 'sem2', 'lab3', 'shampoo.csv')
 CNUS_CLEAN_PATH = os.path.join('data', 'sem2', 'lab3', 'cnus-clean.txt')
 
 MIN_CHAR_LSTM_MODEL_PATH = os.path.join('models', 'min_char_lstm.npz')
+MIN_CHAR_RNN_MODEL_PATH = os.path.join('models', 'min_char_rnn_cnus_clean.npz')
 
-OPTION = 'min-char-lstm'  # airline, shampoo, min-char-lstm
+OPTION = 'min-char-rnn'  # airline, shampoo, min-char-lstm, min-char-rnn
 MODE = 'test'
 
 
@@ -105,11 +106,10 @@ if __name__ == "__main__":
         if MODE == 'train':
             print(f'data has {len(data)} characters, {len(rnn.chars)} unique.')
             rnn.train(max_data=100000, verbose=200)
-            rnn.save(MIN_CHAR_LSTM_MODEL_PATH.replace('min_char_lstm', 'min_char_rnn'))
+            rnn.save(MIN_CHAR_RNN_MODEL_PATH)
         elif MODE == 'test':
-            model_path = MIN_CHAR_LSTM_MODEL_PATH.replace('min_char_lstm', 'min_char_rnn')
             try:
-                rnn.load(model_path)
+                rnn.load(MIN_CHAR_RNN_MODEL_PATH)
             except Exception:
                 print('No saved min-char-rnn model found; run with MODE=train first')
             else:
