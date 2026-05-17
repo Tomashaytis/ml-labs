@@ -2,6 +2,7 @@ import os
 import sys
 
 from src.rnn import train_and_test_model, MinCharLSTM
+from src.rnn import MinCharRNN
 
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -89,4 +90,31 @@ if __name__ == "__main__":
 
             print(f"LSTM:")
             print(generated_text)
+
+    elif OPTION == 'min-char-rnn':
+        with open(CNUS_CLEAN_PATH, 'r') as f:
+            data = f.read()
+
+        params = {
+            'hidden_size': 100,
+            'seq_length': 16,
+            'learning_rate': 0.1,
+        }
+
+        rnn = MinCharRNN(data, hidden_size=params['hidden_size'], seq_length=params['seq_length'], learning_rate=params['learning_rate'])
+
+        if MODE == 'train':
+            print(f'data has {len(data)} characters, {len(rnn.chars)} unique.')
+            rnn.train(max_data=100000, verbose=200)
+            rnn.save(MIN_CHAR_LSTM_MODEL_PATH.replace('min_char_lstm', 'min_char_rnn'))
+        elif MODE == 'test':
+            model_path = MIN_CHAR_LSTM_MODEL_PATH.replace('min_char_lstm', 'min_char_rnn')
+            try:
+                rnn.load(model_path)
+            except Exception:
+                print('No saved min-char-rnn model found; run with MODE=train first')
+            else:
+                prompt = input('Prompt: ')
+                print('RNN:')
+                print(rnn.generate(prompt, n_chars=200))
 
